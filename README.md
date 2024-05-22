@@ -1,2 +1,4 @@
-# Solidity-Learn-for-Hardhat
-Solidity-Learn-for-Hardhat
+# Solidity-Learn-for-EtherJS
+Solidity-Learn-for-EtherJS
+
+hello
