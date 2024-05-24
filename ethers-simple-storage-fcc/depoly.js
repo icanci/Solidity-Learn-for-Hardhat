@@ -30,8 +30,8 @@ async function main() {
   console.log("Deploying, Please wait...");
   // 进行合约的部署
   const contract = await contractFactory.deploy({});
+  // 等待多少个区块确认之后，返回
   const deploymentReceipt = await contract.deploymentTransaction().wait(1);
-
   console.log(deploymentReceipt);
 }
 
