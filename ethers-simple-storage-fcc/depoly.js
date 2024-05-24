@@ -27,7 +27,7 @@ async function main() {
 
   // 创建一个合约工厂
   const contractFactory = new ethers.ContractFactory(abi, binary, wallet);
-  console.log("Depolying, please wait...");
+  console.log("Deploying, Please wait...");
   // 进行合约的部署
   const contract = await contractFactory.deploy({});
   const deploymentReceipt = await contract.deploymentTransaction().wait(1);
@@ -35,7 +35,7 @@ async function main() {
   console.log(deploymentReceipt);
 }
 
-// 运行 mian 函数
+// 运行 main 函数
 main()
   .then(() => process.exit(0))
   .catch((error) => {
