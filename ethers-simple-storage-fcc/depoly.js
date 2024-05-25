@@ -12,7 +12,7 @@ async function main() {
 
   // 获取一个钱包地址
   const wallet = new ethers.Wallet(
-    "0xd9d2ceb0d3034b901e17f38ff437e434a86779fd0b3f2229bbdbf69f9f541156",
+    "0xccb541cdbf637c9c350aac305491d6f301ccdd9d2690c47d7938c3947882f65f",
     provider
   );
 
@@ -30,8 +30,12 @@ async function main() {
   console.log("Deploying, Please wait...");
   // 进行合约的部署
   const contract = await contractFactory.deploy({});
-  // 等待多少个区块确认之后，返回
+  // 交易回执等待多少个区块确认之后，返回
   const deploymentReceipt = await contract.deploymentTransaction().wait(1);
+
+  console.log("Here is the deployment transation: ");
+  console.log(contract.deploymentTransaction());
+  console.log("Here is the deployment receipt: ");
   console.log(deploymentReceipt);
 }
 
