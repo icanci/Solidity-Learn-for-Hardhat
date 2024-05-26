@@ -33,7 +33,7 @@ async function main() {
   // 交易回执等待多少个区块确认之后，返回
   const deploymentReceipt = await contract.deploymentTransaction().wait(1);
 
-  console.log("Here is the deployment transation: ");
+  console.log("Here is the deployment transation(response): ");
   console.log(contract.deploymentTransaction());
   console.log("Here is the deployment receipt: ");
   console.log(deploymentReceipt);
