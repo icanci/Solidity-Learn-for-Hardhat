@@ -12,7 +12,16 @@ async function main() {
   const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
   // 获取一个钱包地址
-  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  // const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+  // 获取加密的数据
+  const encryptedJson = fs.readFileSync("./encryptedKey.json", "utf8");
+  // 此处不需要使用 new
+  let wallet = ethers.Wallet.fromEncryptedJsonSync(
+    encryptedJson,
+    process.env.PRIVATE_KEY_PASSWORD
+  );
+
+  wallet = await wallet.connect(provider);
 
   // 我们编译之后的 abi
   const abi = fs.readFileSync("./SimpleStorage_sol_SimpleStorage.abi", "utf8");
