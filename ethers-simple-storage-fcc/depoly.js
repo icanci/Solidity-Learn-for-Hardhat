@@ -12,16 +12,16 @@ async function main() {
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL)
 
     // 获取一个钱包地址
-    // const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
+    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider)
     // 获取加密的数据
-    const encryptedJson = fs.readFileSync("./encryptedKey.json", "utf8")
-    // 此处不需要使用 new
-    let wallet = ethers.Wallet.fromEncryptedJsonSync(
-        encryptedJson,
-        process.env.PRIVATE_KEY_PASSWORD,
-    )
+    // const encryptedJson = fs.readFileSync("./encryptedKey.json", "utf8")
+    // // 此处不需要使用 new
+    // let wallet = ethers.Wallet.fromEncryptedJsonSync(
+    //     encryptedJson,
+    //     process.env.PRIVATE_KEY_PASSWORD,
+    // )
 
-    wallet = await wallet.connect(provider)
+    // wallet = await wallet.connect(provider)
 
     // 我们编译之后的 abi
     const abi = fs.readFileSync("./SimpleStorage_sol_SimpleStorage.abi", "utf8")
@@ -39,6 +39,7 @@ async function main() {
     const contract = await contractFactory.deploy({})
     // 交易回执等待多少个区块确认之后，返回
     const deploymentReceipt = await contract.deploymentTransaction().wait(1)
+    console.log(`Contract Address: ${await contract.getAddress()}`)
 
     // console.log("Let's deploy with only transaction data!");
     // const nonce = await wallet.getNonce();
