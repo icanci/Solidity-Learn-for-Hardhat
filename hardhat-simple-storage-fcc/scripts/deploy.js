@@ -8,10 +8,11 @@ async function main() {
         "SimpleStorage"
     )
     console.log("Deploying contract...")
+    //what's the private key
+
+    //what's the rpc url
+
     const simpleStorage = await SimpleStorageFactory.deploy()
-
-    // await simpleStorage.getDeployedCode()
-
     console.log(`simple storage deployed: ${simpleStorage.target}`)
 }
 main()
