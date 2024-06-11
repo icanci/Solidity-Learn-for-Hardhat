@@ -32,6 +32,7 @@ logs
 hs_err_pid*
 
 ethers-simple-storage-fcc/node_modules
+hardhat-simple-storage-fcc/node_modules
 
 *.abi
 *.bin
@@ -39,3 +40,19 @@ ethers-simple-storage-fcc/node_modules
 ## 注释这个env 不提交代码到云端仓库，因此我们的数据是安全的
 .env
 encryptedKey.json
+
+
+# Hardhat files
+hardhat-simple-storage-fcc/cache
+hardhat-simple-storage-fcc/artifacts
+
+# TypeChain files
+hardhat-simple-storage-fcc/typechain
+hardhat-simple-storage-fcc/typechain-types
+
+# solidity-coverage files
+hardhat-simple-storage-fcc/coverage
+hardhat-simple-storage-fcc/coverage.json
+
+# Hardhat Ignition default folder for deployments against a local node
+hardhat-simple-storage-fcc/ignition/deployments/chain-31337
