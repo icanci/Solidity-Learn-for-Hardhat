@@ -19,7 +19,7 @@ const SEPOLIA_PRIVATE_KEY = process.env.SEPOLIA_PRIVATE_KEY
 module.exports = {
     defauleNetwork: "hardhat",
     networks: {
-        Sepolia: {
+        sepolia: {
             url: SEPOLIA_RPC_URL,
             accounts: [SEPOLIA_PRIVATE_KEY],
             chainId: 11155420,
