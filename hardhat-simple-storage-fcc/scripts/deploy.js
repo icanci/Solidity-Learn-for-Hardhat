@@ -4,8 +4,7 @@ const { ethers, run, network } = require("hardhat")
 
 async function main() {
     // get a factory
-    const SimpleStorageFactory =
-        await ethers.getContractFactory("SimpleStorage")
+    const SimpleStorageFactory = await ethers.getContractFactory("SimpleStorage")
 
     console.log("Deploying contract...")
     //what's the private key

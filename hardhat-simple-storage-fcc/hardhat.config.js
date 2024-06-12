@@ -31,6 +31,10 @@ module.exports = {
             accounts: [SEPOLIA_PRIVATE_KEY],
             chainId: 11155111, // HardhatError: HH101: Hardhat was set to use chain id 11155420, but connected to a chain with id 11155111.
         },
+        localhost: {
+            url: "http://127.0.0.1:8545/",
+            chainId: 31337,
+        },
     },
     solidity: "0.8.7",
     etherscan: {
