@@ -1,5 +1,10 @@
 require("@nomicfoundation/hardhat-toolbox")
 require("dotenv").config()
+
+// not need this line:
+// @see https://ethereum.stackexchange.com/questions/149768/error-hh210-redefinition-of-task-verify-failed-unsupported-operation-adding-po
+// require("@nomiclabs/hardhat-etherscan")
+
 // require("@nomiclabs/hardhat-waffle")
 
 task("accounts", "Prints the list of accounts", async () => {
@@ -12,6 +17,7 @@ task("accounts", "Prints the list of accounts", async () => {
 
 const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
 const SEPOLIA_PRIVATE_KEY = process.env.SEPOLIA_PRIVATE_KEY
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
 
 /** @type import('hardhat/config').HardhatUserConfig */
 
@@ -26,4 +32,7 @@ module.exports = {
         },
     },
     solidity: "0.8.7",
+    etherscan: {
+        apiKey: ETHERSCAN_API_KEY,
+    },
 }
