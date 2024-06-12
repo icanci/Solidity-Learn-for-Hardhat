@@ -56,3 +56,5 @@ hardhat-simple-storage-fcc/coverage.json
 
 # Hardhat Ignition default folder for deployments against a local node
 hardhat-simple-storage-fcc/ignition/deployments/chain-31337
+
+*.txt

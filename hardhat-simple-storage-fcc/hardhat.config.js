@@ -1,6 +1,7 @@
 require("@nomicfoundation/hardhat-toolbox")
 require("dotenv").config()
 require("./tasks/block-numbers")
+require("hardhat-gas-reporter")
 
 // not need this line:
 // @see https://ethereum.stackexchange.com/questions/149768/error-hh210-redefinition-of-task-verify-failed-unsupported-operation-adding-po
@@ -19,6 +20,7 @@ task("accounts", "Prints the list of accounts", async () => {
 const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
 const SEPOLIA_PRIVATE_KEY = process.env.SEPOLIA_PRIVATE_KEY
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
+const COIN_MARKET_CAP_KEY = process.env.COIN_MARKET_CAP_KEY
 
 /** @type import('hardhat/config').HardhatUserConfig */
 
@@ -39,5 +41,13 @@ module.exports = {
     solidity: "0.8.7",
     etherscan: {
         apiKey: ETHERSCAN_API_KEY,
+    },
+    gasReporter: {
+        enabled: false,
+        outputFile: "gas-report.txt",
+        noColors: true,
+        currency: "USD",
+        // coinmarketcap: COIN_MARKET_CAP_KEY,
+        token: "MATIC",
     },
 }
