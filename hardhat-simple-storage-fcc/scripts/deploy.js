@@ -1,6 +1,5 @@
 // imports
 // run 可以执行 hardhat 的所有任务 task
-const { ConstructorFragment } = require("ethers")
 const { ethers, run, network } = require("hardhat")
 
 async function main() {
@@ -15,6 +14,8 @@ async function main() {
 
     const simpleStorage = await SimpleStorageFactory.deploy()
     console.log(`simple storage deployed: ${simpleStorage.target}`)
+
+    console.log(network.config)
 
     if (network.config.chainId === 11155111 && process.env.ETHERSCAN_API_KEY) {
         // 要等待有区块验证了之后，在进行确认，否则可能还刷不出来
