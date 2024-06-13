@@ -41,7 +41,9 @@ module.exports = {
     },
     solidity: "0.8.7",
     etherscan: {
-        apiKey: ETHERSCAN_API_KEY,
+        apiKey: {
+            sepolia: ETHERSCAN_API_KEY,
+        },
     },
     gasReporter: {
         enabled: false,
@@ -50,5 +52,8 @@ module.exports = {
         currency: "USD",
         // coinmarketcap: COIN_MARKET_CAP_KEY,
         token: "MATIC",
+    },
+    sourcify: {
+        enabled: true,
     },
 }
