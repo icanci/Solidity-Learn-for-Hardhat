@@ -31,8 +31,10 @@ logs
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+# node_modules
 ethers-simple-storage-fcc/node_modules
 hardhat-simple-storage-fcc/node_modules
+hardhat-fund-me-fcc/node_modules
 
 *.abi
 *.bin
@@ -58,3 +60,18 @@ hardhat-simple-storage-fcc/coverage.json
 hardhat-simple-storage-fcc/ignition/deployments/chain-31337
 
 *.txt
+
+# Hardhat files
+hardhat-fund-me-fcc/cache
+hardhat-fund-me-fcc/artifacts
+
+# TypeChain files
+hardhat-fund-me-fcc/typechain
+hardhat-fund-me-fcc/typechain-types
+
+# solidity-coverage files
+hardhat-fund-me-fcc/coverage
+hardhat-fund-me-fcc/coverage.json
+
+# Hardhat Ignition default folder for deployments against a local node
+hardhat-fund-me-fcc/ignition/deployments/chain-31337
