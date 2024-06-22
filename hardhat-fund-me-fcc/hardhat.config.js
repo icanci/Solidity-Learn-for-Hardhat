@@ -1,6 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox")
 require("dotenv").config()
-require("./tasks/block-numbers")
 require("hardhat-gas-reporter")
 require("solidity-coverage")
 
