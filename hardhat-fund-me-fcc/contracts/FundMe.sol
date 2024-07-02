@@ -3,6 +3,8 @@ pragma solidity 0.8.7;
 
 import "./PriceConverter.sol";
 
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+
 // 优化之前
 // 创建此合约需要的 gas：840761
 // Immutable Constant(常量)
@@ -21,10 +23,14 @@ error NotOwner();
 
 contract FundMe {
     // 构造函数，会在你部署合约之后立即调用一次
-    constructor() {
+    // 构造函数可以接收参数，那我们可以将价格数据的地址传入进来
+    constructor(address priceFeedAddress) {
         // 这里的 sender 就是部署这个合约的人
         i_owner = msg.sender;
+        priceFeed = AggregatorV3Interface(priceFeedAddress);
     }
+
+    AggregatorV3Interface public priceFeed;
 
     using PriceConverter for uint256;
 
@@ -59,7 +65,7 @@ contract FundMe {
 
         // getConversionRate 需要传入一个参数，但是msg.value
         require(
-            msg.value.getConversionRate() >= MINIMUM_USD,
+            msg.value.getConversionRate(priceFeed) >= MINIMUM_USD,
             "didn't send enough! "
         );
         // 记录下每个 funder

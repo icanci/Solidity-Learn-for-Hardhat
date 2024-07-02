@@ -16,4 +16,5 @@ module.exports = async (hre) => {
     const { deply, log } = deployments
     const { deplyer } = await getNamedAccounts()
     const chainId = network.config.chainId
+    // 当我们使用本地主机或者 hardhat network的时候，就要使用 mock
 }
