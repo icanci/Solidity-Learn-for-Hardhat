@@ -39,7 +39,16 @@ module.exports = {
             chainId: 31337,
         },
     },
-    solidity: "0.8.7",
+    // 可以添加多个编译版本，这样就可以使用
+    // solidity: "0.8.7",
+    solidity: {
+        compilers: [
+            {
+                version: "0.8.7",
+            },
+            { version: "0.8.0" },
+        ],
+    },
     etherscan: {
         apiKey: {
             sepolia: ETHERSCAN_API_KEY,
@@ -55,5 +64,12 @@ module.exports = {
     },
     sourcify: {
         enabled: true,
+    },
+    // getNamedAccounts undifind
+    namedAccounts: {
+        deployer: {
+            default: 0,
+            1: 0,
+        },
     },
 }
