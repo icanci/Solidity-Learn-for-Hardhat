@@ -19,6 +19,9 @@ const {
     DECIMAILS,
     INITIAL_ANSWER,
 } = require("../helper-hardhat-config")
+
+const { verify } = require("../utils/verify")
+
 module.exports = async (hre) => {
     const { getNamedAccounts, deployments } = hre // like => hre.getNamedAccounts; hre.deployments;
     const { deploy, log, get } = deployments
@@ -36,11 +39,21 @@ module.exports = async (hre) => {
     }
     // mock
 
+    const args = [ethUsdPriceFeedAddress]
+
     const fundMe = await deploy("FundMe", {
         from: deployer,
-        args: [ethUsdPriceFeedAddress], // 放入 priceFeed
+        args: args, // 放入 priceFeed
         log: true,
     })
+
+    if (
+        !developmentChains.includes(network.name) &&
+        process.env.ETHERSCAN_API_KEY
+    ) {
+        // do verify
+        await verify(fundMe.address, args)
+    }
     log("------------------------------------------")
 }
 
