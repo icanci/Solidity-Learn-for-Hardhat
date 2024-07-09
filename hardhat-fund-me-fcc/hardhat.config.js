@@ -10,14 +10,6 @@ require("hardhat-deploy")
 
 // require("@nomiclabs/hardhat-waffle")
 
-task("accounts", "Prints the list of accounts", async () => {
-    const accounts = await ethers.getSigners()
-
-    for (const account of accounts) {
-        console.log(account.address)
-    }
-})
-
 const SEPOLIA_RPC_URL = process.env.SEPOLIA_RPC_URL
 const SEPOLIA_PRIVATE_KEY = process.env.SEPOLIA_PRIVATE_KEY
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
@@ -33,6 +25,7 @@ module.exports = {
             url: SEPOLIA_RPC_URL,
             accounts: [SEPOLIA_PRIVATE_KEY],
             chainId: 11155111, // HardhatError: HH101: Hardhat was set to use chain id 11155420, but connected to a chain with id 11155111.
+            blockConfirmations: 6,
         },
         localhost: {
             url: "http://127.0.0.1:8545/",
@@ -59,7 +52,7 @@ module.exports = {
         outputFile: "gas-report.txt",
         noColors: true,
         currency: "USD",
-        // coinmarketcap: COIN_MARKET_CAP_KEY,
+        coinmarketcap: COIN_MARKET_CAP_KEY,
         token: "MATIC",
     },
     sourcify: {

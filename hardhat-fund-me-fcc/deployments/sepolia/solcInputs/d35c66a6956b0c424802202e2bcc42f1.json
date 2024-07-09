@@ -1,0 +1,41 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\n// solhint-disable-next-line interface-starts-with-i\ninterface AggregatorV3Interface {\n  function decimals() external view returns (uint8);\n\n  function description() external view returns (string memory);\n\n  function version() external view returns (uint256);\n\n  function getRoundData(\n    uint80 _roundId\n  ) external view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);\n\n  function latestRoundData()\n    external\n    view\n    returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);\n}\n"
+    },
+    "contracts/FundMe.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.7;\n\nimport \"./PriceConverter.sol\";\n\nimport {AggregatorV3Interface} from \"@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol\";\n\n// 优化之前\n// 创建此合约需要的 gas：840761\n// Immutable Constant(常量)\n// 使用 Constant 修饰 minimumUsd\n// 创建此合约需要的 gas：821214\n\n// FundMe 合约\n// 其是一个智能合约，可以使人们发起一个众筹\n// 人们可以向其发送ETH、Polygon、Fantom 或者是其他区块链原生通证\n\n// 要求\n// 这个合约可以从用户那里获取资金\n// 可以提取资金\n// 设置一个以 usd 计价的最小资助金额\nerror NotOwner();\n\ncontract FundMe {\n    // 构造函数，会在你部署合约之后立即调用一次\n    // 构造函数可以接收参数，那我们可以将价格数据的地址传入进来\n    constructor(address priceFeedAddress) {\n        // 这里的 sender 就是部署这个合约的人\n        i_owner = msg.sender;\n        priceFeed = AggregatorV3Interface(priceFeedAddress);\n    }\n\n    AggregatorV3Interface public priceFeed;\n\n    using PriceConverter for uint256;\n\n    // 对于 Solidity 中只需要设置一次的变量 可以通过优化，来节省gas\n    uint256 public constant MINIMUM_USD = 50 * 1e18;\n\n    address[] public funders;\n\n    mapping(address => uint256) public addressToAmountFunded;\n\n    address public immutable i_owner;\n\n    // fund 函数，人们可以使用其来发送资金\n    // paybale 关键字\n    // 就像我们的钱包可以持有资金，合约地址也可以持有资金\n    // 每次部署合约的时候，可以获得一个合约地址，这个地址和钱包地址几乎一致\n    // 所以钱包和合约都可以持有像是ETH这样的原生区块链通证\n\n    // 当人们给这个合约发送资金的时候，我们想要记录下来这些人\n    function fund() public payable {\n        // 设置一个以 usd 计价的最小资助金额\n        // 1.我们怎么向这个合约转ETH\n        // 通过msg.value 可以得知某人转账的金额 单位是 wei\n        // revert 将之前的操作回滚，并将剩余的gas返回\n        // 比如 fund 函数需要花费 1000gas\n        // 在 require 之前，需要花费 50gas\n        // 但是在 require 失败，那么则需要返还 1000 - 50 = 950 gas\n\n        // 这里的值是以太，单位是wei 但是我们怎么把以太币转换为usd呢？这就是预言机的作用\n        // 为了获取以太币的美元价格，我们需要从区块链之外获得信息\n        // 也就是使用去中心化的预言机网络，获取1个ETH的usd价格\n\n        // getConversionRate 需要传入一个参数，但是msg.value\n        require(\n            msg.value.getConversionRate(priceFeed) >= MINIMUM_USD,\n            \"didn't send enough! \"\n        );\n        // 记录下每个 funder\n        // msg.sender 是一个全局关键字 表示是调用这个函数的地址 即 Account address\n        funders.push(msg.sender);\n        addressToAmountFunded[msg.sender] += msg.value;\n        //\n    }\n\n    // 合约的拥有者可以提取不同的funder发生的资金\n    // 因为我们要提取资金，所以需要把上面存储的数据设置为0\n    // 此时，无论是谁都可以从这个合约提款；我们不希望所有人都可以提款\n    // 所以我们需要设定只有合约的拥有者才能调用 withdraw 函数\n    function withdraw() public onlyOwner {\n        // 当前的调用者和创建合约的，是否是一个人\n        // require(msg.sender == owner,\"Sender is not owner! \");\n\n        // for loop\n        for (\n            uint256 funderIndex = 0;\n            funderIndex < funders.length;\n            funderIndex++\n        ) {\n            // code\n            address funder = funders[funderIndex];\n            addressToAmountFunded[funder] = 0;\n        }\n        // 重置数组 后面的 0 表示没有一个元素在里面，如果是1，则说明有1个元素在里面\n        funders = new address[](0);\n        // 发送资金: 我们如何实际从这个合约中提取资金呢？或者说我们该如何把资金发送给合约的调用者\n        // 如何需要发送以太币或者其他区块链原生货币的话，有三种不同的方式可供使用\n        // transfer this 表示整个合约本身 .balance 就是当前这个地址的区块链原生货币或者以太坊余额了\n        // 这里还是要做一个类型转换，把 msg.sender 从address类型转为 payable address 类型\n\n        // msg.sender = address\n        // call 是在 Solidity 中比较底层的命令。可以用来调用几乎所有的Solidity函数\n        // 如果函数调用成功，那么就返回true 否则返回false\n        // dataReturned 指的是 我们调用那个函数本身就返回一些数据或者说有返回值，那么就是此值\n        (bool callSuccess, ) = payable(msg.sender).call{\n            value: address(this).balance\n        }(\"\");\n        require(callSuccess, \"Call Failed!\");\n    }\n\n    // 修饰器\n    // 意思使用 onlyOwner 标记的函数，必须在调用之前，先调用一下 onlyOwner 里面的函数，再运行下划线的代码，下划线的代码表示剩余的代码\n    modifier onlyOwner() {\n        require(msg.sender == i_owner, \"Sender is not owner! \");\n        if (msg.sender != i_owner) {\n            revert NotOwner();\n        }\n        _;\n    }\n\n    // 如果有人在没t有调用fund函数就向这个合约发送以太币的情况下，怎么处理\n    // 特殊函数\n    // receive()\n    // fallback()\n\n    // 特殊函数，只要我们发送ETH或者向这个合约发送交易\n    // 只要没有与该交易相关的数据，这个函数就会被触发，类似vue中的钩子函数、生命周期函数\n    // 当你向合约发送交易的时候，如果没有指定某个函数。receive 函数就会被触发(当 calldata 没有值的时候)\n    receive() external payable {\n        fund();\n    }\n\n    // 即使数据和交易一起被发送，他也会触发\n    fallback() external payable {\n        fund();\n    }\n}\n"
+    },
+    "contracts/PriceConverter.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity 0.8.7;\n\n// remix 可以自动识别 @chainlink/contracts 就是指向 chainlink/contracts de NPM 包\nimport {AggregatorV3Interface} from \"@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol\";\n\n// library 不能有任何静态变量，也不能发送ETH\n// 一个库的所有的function都是internal的\nlibrary PriceConverter {\n    function getPrice(\n        AggregatorV3Interface priceFeed\n    ) internal view returns (uint256) {\n        // abi\n        // address 0x694AA1769357215DE4FAC081bf1f309aDC325306\n        // 创建合约对象\n        // (uint80 roundId,int256 price, uint startedAt,uint timestamp, uint80 answerInRound) = dataFeed.latestRoundData();\n        // 可以将不关心的数据删除掉，但是需要保留逗号\n        // 其中 latestRoundData 的返回值可以返回多个数据\n        (, int256 price, , , ) = priceFeed.latestRoundData();\n        // ETH in terms of USD\n        // 因为Solidity是不能使用小数的\n        return uint256(price * 1e10); // 1 ** 10000000000\n    }\n\n    //\n    function getConversionRate(\n        uint256 ethAmount,\n        AggregatorV3Interface priceFeed\n    ) internal view returns (uint256) {\n        uint256 ethPrice = getPrice(priceFeed);\n        // ethPrice 和 ethAmount 都是18位的，如果不除以18个0，那么就会变成36位\n        // such as ethPrice = 3000_000000000000000000 单位是每个ETH的usd价格\n        //         ethAmount = 1_000000000000000000 单位是wei\n        uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1e18;\n        return ethAmountInUsd;\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

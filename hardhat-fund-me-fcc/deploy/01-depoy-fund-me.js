@@ -45,6 +45,7 @@ module.exports = async (hre) => {
         from: deployer,
         args: args, // 放入 priceFeed
         log: true,
+        waitConfirmations: network.config.blockConfirmations || 1,
     })
 
     if (
@@ -60,4 +61,6 @@ module.exports = async (hre) => {
 // 这里运行 yarn hardhat deploy --tags fundme 报错是因为，没有执行 00-deploy-mocks.js 这个mock
 // 导致这次部署进程中的 MockV3Aggregator 没有
 // 因此，我们使用 yarn hardhat deploy 部署即可. 或者使用 yarn hardhat deploy --tags all
+
+// Anyone deploy: 0xD71f31D825150789177d7E4b4308994Ed284dB97
 module.exports.tags = ["all", "fundme"]
