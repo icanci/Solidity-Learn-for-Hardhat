@@ -19,20 +19,21 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
 // 这个合约可以从用户那里获取资金
 // 可以提取资金
 // 设置一个以 usd 计价的最小资助金额
-error NotOwner();
+error FundMe_NotOwner(); // this is like excetion in Java.
 
+/**
+ * remark
+ *
+ * @title a contract for crowed funding
+ * @author icanci
+ * @notice this contract is to demo a sample funding contract
+ * @dev This implements price feeds as our library
+ */
 contract FundMe {
-    // 构造函数，会在你部署合约之后立即调用一次
-    // 构造函数可以接收参数，那我们可以将价格数据的地址传入进来
-    constructor(address priceFeedAddress) {
-        // 这里的 sender 就是部署这个合约的人
-        i_owner = msg.sender;
-        priceFeed = AggregatorV3Interface(priceFeedAddress);
-    }
+    // type declarations
+    using PriceConverter for uint256;
 
     AggregatorV3Interface public priceFeed;
-
-    using PriceConverter for uint256;
 
     // 对于 Solidity 中只需要设置一次的变量 可以通过优化，来节省gas
     uint256 public constant MINIMUM_USD = 50 * 1e18;
@@ -43,6 +44,42 @@ contract FundMe {
 
     address public immutable i_owner;
 
+    // 修饰器
+    // 意思使用 onlyOwner 标记的函数，必须在调用之前，先调用一下 onlyOwner 里面的函数，再运行下划线的代码，下划线的代码表示剩余的代码
+    // this is like aop in spring(java).
+    modifier onlyOwner() {
+        require(msg.sender == i_owner, "Sender is not owner! ");
+        if (msg.sender != i_owner) {
+            revert FundMe_NotOwner();
+        }
+        _;
+    }
+
+    // 构造函数，会在你部署合约之后立即调用一次
+    // 构造函数可以接收参数，那我们可以将价格数据的地址传入进来
+    constructor(address priceFeedAddress) {
+        // 这里的 sender 就是部署这个合约的人
+        i_owner = msg.sender;
+        priceFeed = AggregatorV3Interface(priceFeedAddress);
+    }
+
+    // 如果有人在没t有调用fund函数就向这个合约发送以太币的情况下，怎么处理
+    // 特殊函数
+    // receive()
+    // fallback()
+
+    // 特殊函数，只要我们发送ETH或者向这个合约发送交易
+    // 只要没有与该交易相关的数据，这个函数就会被触发，类似vue中的钩子函数、生命周期函数
+    // 当你向合约发送交易的时候，如果没有指定某个函数。receive 函数就会被触发(当 calldata 没有值的时候)
+    receive() external payable {
+        fund();
+    }
+
+    // 即使数据和交易一起被发送，他也会触发
+    fallback() external payable {
+        fund();
+    }
+
     // fund 函数，人们可以使用其来发送资金
     // paybale 关键字
     // 就像我们的钱包可以持有资金，合约地址也可以持有资金
@@ -50,6 +87,10 @@ contract FundMe {
     // 所以钱包和合约都可以持有像是ETH这样的原生区块链通证
 
     // 当人们给这个合约发送资金的时候，我们想要记录下来这些人
+    /**
+     * @notice this function funds this contract
+     * @dev this implements price feeds as our library
+     */
     function fund() public payable {
         // 设置一个以 usd 计价的最小资助金额
         // 1.我们怎么向这个合约转ETH
@@ -108,32 +149,5 @@ contract FundMe {
             value: address(this).balance
         }("");
         require(callSuccess, "Call Failed!");
-    }
-
-    // 修饰器
-    // 意思使用 onlyOwner 标记的函数，必须在调用之前，先调用一下 onlyOwner 里面的函数，再运行下划线的代码，下划线的代码表示剩余的代码
-    modifier onlyOwner() {
-        require(msg.sender == i_owner, "Sender is not owner! ");
-        if (msg.sender != i_owner) {
-            revert NotOwner();
-        }
-        _;
-    }
-
-    // 如果有人在没t有调用fund函数就向这个合约发送以太币的情况下，怎么处理
-    // 特殊函数
-    // receive()
-    // fallback()
-
-    // 特殊函数，只要我们发送ETH或者向这个合约发送交易
-    // 只要没有与该交易相关的数据，这个函数就会被触发，类似vue中的钩子函数、生命周期函数
-    // 当你向合约发送交易的时候，如果没有指定某个函数。receive 函数就会被触发(当 calldata 没有值的时候)
-    receive() external payable {
-        fund();
-    }
-
-    // 即使数据和交易一起被发送，他也会触发
-    fallback() external payable {
-        fund();
     }
 }
