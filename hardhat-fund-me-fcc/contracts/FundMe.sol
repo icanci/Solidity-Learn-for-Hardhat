@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.7;
 
-import "./PriceConverter.sol";
-
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
+import "./PriceConverter.sol";
 // 优化之前
 // 创建此合约需要的 gas：840761
 // Immutable Constant(常量)
@@ -71,14 +70,14 @@ contract FundMe {
     // 特殊函数，只要我们发送ETH或者向这个合约发送交易
     // 只要没有与该交易相关的数据，这个函数就会被触发，类似vue中的钩子函数、生命周期函数
     // 当你向合约发送交易的时候，如果没有指定某个函数。receive 函数就会被触发(当 calldata 没有值的时候)
-    receive() external payable {
-        fund();
-    }
+    // receive() external payable {
+    //     fund();
+    // }
 
     // 即使数据和交易一起被发送，他也会触发
-    fallback() external payable {
-        fund();
-    }
+    // fallback() external payable {
+    //     fund();
+    // }
 
     // fund 函数，人们可以使用其来发送资金
     // paybale 关键字
@@ -107,13 +106,12 @@ contract FundMe {
         // getConversionRate 需要传入一个参数，但是msg.value
         require(
             msg.value.getConversionRate(priceFeed) >= MINIMUM_USD,
-            "didn't send enough! "
+            "You need to spend more ETH!"
         );
         // 记录下每个 funder
         // msg.sender 是一个全局关键字 表示是调用这个函数的地址 即 Account address
         funders.push(msg.sender);
         addressToAmountFunded[msg.sender] += msg.value;
-        //
     }
 
     // 合约的拥有者可以提取不同的funder发生的资金
